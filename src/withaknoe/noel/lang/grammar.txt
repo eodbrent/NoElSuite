@@ -1,0 +1,111 @@
+########################################
+        V 0.1 20 November 2025
+########################################
+program        → declaration* EOF ;
+
+declaration    → defDecl
+               | varDecl
+               | statement ;
+
+defDecl        → "def" defKind IDENTIFIER "(" parameters? ")" usesClause? block ;
+defKind        → "letter"
+               | "symbol"
+               | "line"
+               | "other" ;
+
+parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
+usesClause     → "uses" IDENTIFIER ( "," IDENTIFIER )* ;
+
+varDecl        → "var" IDENTIFIER "=" expression ";"? ;
+
+statement      → exprStmt
+               | returnStmt
+               | block ;
+
+exprStmt       → expression ";"? ;
+returnStmt     → "return" expression? ";"? ;
+
+block          → "{" declaration* "}" ;
+
+expression     → assignment ;
+assignment     → IDENTIFIER "=" assignment
+               | logic_or ;
+
+logic_or       → logic_and ( "or" logic_and )* ;
+logic_and      → equality ( "and" equality )* ;
+equality       → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term           → factor ( ( "-" | "+" ) factor )* ;
+factor         → unary ( ( "/" | "*" ) unary )* ;
+unary          → ( "!" | "-" ) unary
+               | call ;
+
+call           → primary ( "(" arguments? ")" )* ;
+arguments      → expression ( "," expression )* ;
+
+primary        → NUMBER
+               | STRING
+               | "true"
+               | "false"
+               | IDENTIFIER
+               | "(" expression ")"
+               | arrayLiteral
+               | lineLiteral ;
+
+arrayLiteral   → "[" arguments? "]" ;
+
+lineLiteral    → "line" "{" lineFields? "}" ;
+lineFields     → IDENTIFIER ":" expression ( "," IDENTIFIER ":" expression )* ;
+
+
+
+
+
+
+
+
+
+
+*************** PREVIOUS VERSION EXPERIMENTS ***************
+program          -> initial+ declaration inherit? declaration "{" instructionBlock "}"
+
+initial          -> "letter" | "number" | "symbol" | "other"
+declaration      -> LETTERDEC | NUMBERDEC | SYMBOLDEC | OTHERDEC | nil
+inherit          -> "uses" | nil
+instructionBlock -> ("new" | nil) VAR "=" ("line("|"arc(") (x|nil) y (x|nil) y (deg | nil) | instructionBlock
+markType         -> "line" | "arc"
+x                -> NUMBER
+y                -> NUMBER
+LETTERDEC        -> [A-Za-z_]
+NUMBERDEC        -> NUMBER+ ("." NUMBER+)?
+NUMBER           -> 0-9
+SYMBOLDEC
+OTHERDEC
+BOOL             -> "true" | "false"
+VAR
+
+
+
+expression     → literal
+               | unary
+               | binary
+               | grouping ;
+
+literal        → NUMBER | STRING | "true" | "false" | "nil" ;
+grouping       → "(" expression ")" ;
+unary          → ( "-" | "!" ) expression ;
+binary         → expression operator expression ;
+operator       → "==" | "!=" | "<" | "<=" | ">" | ">="
+               | "+"  | "-"  | "*" | "/" ;
+
+letter b {
+  new first = line(x1, y1, x2, y2) -- x1, x2 optional
+}
+
+LOX EXPRESSION GRAMMAR
+expression      -> literal | unary | binary | grouping ;
+literal         -> NUMBER | STRING | "true" | "false" | "nil" ;
+grouping        -> "(" expression ")" ;
+unary           -> ( "-" | "!" ) expression ;
+binary          -> expression operator expression ;
+operator        -> "==" | "!=" | "<" | "<=" | ">" | ">=" | "+" | "-" | "*" | "/" ;
