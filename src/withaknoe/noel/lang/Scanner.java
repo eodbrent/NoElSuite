@@ -17,25 +17,30 @@ public class Scanner {
     static {
         keywords = new HashMap<>();
         keywords.put("and",        AND);
-        keywords.put("ascender",   ASCENDER);
-        keywords.put("base",       BASE);
-        keywords.put("descender",  DESCENDER);
+        keywords.put("arc",        ARC);
+        // keywords.put("ascender",   ASCENDER);
+        // keywords.put("base",       BASE);
+        keywords.put("def",        DEF);
+        // keywords.put("descender",  DESCENDER);
         keywords.put("else",       ELSE);
         keywords.put("elseif",     ELSEIF); //TODO needs 2nd thought - elif...
         keywords.put("false",      FALSE);
         keywords.put("for",        FOR);
-        keywords.put("identifier", IDENTIFIER);
+        // keywords.put("identifier", IDENTIFIER);
         keywords.put("if",         IF);
+        keywords.put("let",        LET);
         keywords.put("letter",     LETTER);
         keywords.put("line",       LINE);
-        keywords.put("middle",     MIDDLE);
+        // keywords.put("middle",     MIDDLE);
         keywords.put("number",     NUMBER);
         keywords.put("numeral",    NUMERAL);
         keywords.put("or",         OR);
         keywords.put("other",      OTHER);
-        //keywords.put("string",     STRING);
+        keywords.put("print",      PRINT);   // may be helpful for debugging or other familiar environment uses
+        keywords.put("return",     RETURN);  // !TODO decide how
+        keywords.put("settings",   SETTINGS);
+        keywords.put("string",     STRING);  // required with PRINT, will also need a concat (..)
         keywords.put("symbol",     SYMBOL);
-        keywords.put("return",     RETURN);  // TODO decide how
         keywords.put("true",       TRUE);
         keywords.put("uses",       USES);
         keywords.put("while",      WHILE);
@@ -60,12 +65,20 @@ public class Scanner {
             case ')': addToken(RPAREN);   break;
             case '{': addToken(LBRACE);   break;
             case '}': addToken(RBRACE);   break;
-            case '+': addToken(PLUS);     break;  // possibly for concatenation also if strings prove useful
+            case '[': addToken(LBRACKET); break;
+            case ']': addToken(RBRACKET); break;
+            case '+': addToken(PLUS);     break;
             case '*': addToken(STAR);     break;
             case '/': addToken(SLASH);    break;
-            case '.': addToken(DOT);      break;
             case ':': addToken(COLON);    break; // can't remember why I wanted to include this one
             case ',': addToken(COMMA);    break;
+            case '.':
+                if (match('.')) {
+                    addToken(CONCAT);
+                } else {
+                    addToken(PERIOD);
+                }
+                break;
             case '>':
                 if (match('=')) {
                     addToken(GREATER_EQUAL);
@@ -119,7 +132,6 @@ public class Scanner {
         }
     }
 
-    // included in case I find a purpose for strings.
     private void string() {
         while (peek() != '"' && !isAtEnd()) {
             if (peek() == '\n') { line++; }
@@ -145,6 +157,7 @@ public class Scanner {
         current++;
         return true;
     }
+
     private void identifier() {
         while (isAlphaNumeric(peek())) advance();
         String text = source.substring(start, current);
@@ -153,7 +166,8 @@ public class Scanner {
         if (type == null) type = TokenType.IDENTIFIER;
         addToken(type);
     }
-    // i like lox's double integer
+
+    // i like lox's double
     private void number() {
         while (isDigit(peek())) advance();
 

@@ -1,4 +1,67 @@
 ########################################
+        * NOTE * December 6, 2025
+########################################
+Lots of new design/structure decisions made here:
+primitive declaration is boring and the assignment syntax is unoriginal.
+Moving from Arc myArc = Arc(.... to a more statement style
+Arc myArc(....
+
+For primitive data/assignment, something other than parenthesis, { or [
+-- doesn't all have to be assigned. if not assigned, default values can be used in
+-- settings block
+settings {
+    monospace = true
+    fontHeight = 1000
+    radius = .4
+    end = (0.5, 0.5)
+    ascender = 0.34
+    baseline = 0.33
+    descender = 0.33
+}
+
+Arc myArc[
+    name = varName<myArc> -- or "diffArc",
+    origin = (0.5, 0.5)
+    -- or, both allowed
+    origin.x =
+    origin.y =
+    start = same as origin
+    end = same
+    radius = 0.4
+]
+
+-- I also like a more user-friendly primitive declaration for coordinates:
+-- with everything being normalized and relative to the drawing canvas, and already
+--   implementing coords with baseline + 0.2, or ascender - .1 as these lines have default heights
+Arc myArc[
+    name = ...
+    origin = (...
+    complete = from ascender, 0.1 to baseline - 0.2, 0.2 -- commas separate x and y
+    ...
+]
+
+deciding on "let" for IMMUTABLE[only] variable declaration. It makes the most sense as much of
+    NoEl is calculations and coordinates, let comes direclty from math, and i like rust's
+    'let' / 'let mut'
+
+{} → blocks / settings
+
+[] → primitive parameter sets
+
+() → expressions / coordinates
+
+Statement Terminator (finally decided on something):
+ONE lonesome period ends the statement - two periods concatenate
+-- all good
+Arc bowl[ ... ]. -- comment
+let width = 0.66       .
+settings { ... }.
+-- not good
+Arc bowl[ ... ] -- comment .
+let width = 0.66
+settings { ... }..
+
+########################################
         V 0.1 20 November 2025
 ########################################
 program        → declaration* EOF ;

@@ -1,10 +1,9 @@
 package withaknoe.noel.fx;
 
 import javafx.scene.canvas.GraphicsContext;
-
-import java.awt.*;
+import withaknoe.noel.core.Primitive;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 // A stateful visitor that knows how to draw each primitive.
 // ~ turns data into pixels
@@ -15,24 +14,23 @@ public class Renderer implements Primitive.Visitor<Void> {
     double origin_y;
     double fontWidthPx;
     double fontHeightPx;
-    HashMap<String, Primitive> primitives;
+    List<Primitive> primitives;
 
-    Renderer(GraphicsContext gc, HashMap<String, Primitive> primitives, double origin_x, double origin_y,
-             double fontWidthPx, double fontHeightPx) {
+    Renderer(GraphicsContext gc, List<Primitive> primitives, Layout layout) {
         this.gc = gc;
-        this.origin_x = origin_x;
-        this.origin_y = origin_y;
-        this.fontWidthPx = fontWidthPx;
-        this.fontHeightPx = fontHeightPx;
         this.primitives = primitives;
+        this.origin_x = layout.getLetterRect().getX();
+        this.origin_y = layout.getLetterRect().getY();
+        this.fontWidthPx = layout.fontWidthPx;
+        this.fontHeightPx = layout.fontHeightPx;
     }
 
     @Override
     public Void visitLine(Primitive.Line line){
-        double start_x = this.origin_x + (line.getStart().getX() * this.fontWidthPx);
-        double start_y = this.origin_y + (line.getStart().getY() * this.fontHeightPx);
-        double end_x = this.origin_x + (line.getEnd().getX() * this.fontWidthPx);
-        double end_y = this.origin_y + (line.getEnd().getY() * this.fontHeightPx);
+        double start_x = this.origin_x + (line.getStart().x() * this.fontWidthPx);
+        double start_y = this.origin_y + (line.getStart().y() * this.fontHeightPx);
+        double end_x = this.origin_x + (line.getEnd().x() * this.fontWidthPx);
+        double end_y = this.origin_y + (line.getEnd().y() * this.fontHeightPx);
         this.gc.strokeLine(start_x, start_y, end_x, end_y);
         return null;
     }
@@ -43,9 +41,10 @@ public class Renderer implements Primitive.Visitor<Void> {
         return null;
     }
 
-    public void render(GraphicsContext gc, HashMap<String, Primitive> primitives, double origin_x, double origin_y,
-                       double fontWidthPx, double fontHeightPx) {
-        //
 
+    public void render() {
+        for (Primitive p : primitives) {
+            p.accept(this);
+        }
     }
 }

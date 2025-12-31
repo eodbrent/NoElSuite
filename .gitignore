@@ -2,7 +2,7 @@
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-.idea/
+.idea/*
 .idea/misc.xml
 .kotlin
 *.iml
@@ -43,5 +43,5 @@ Thumbs.db
 genast.bat
 
 # Misc
-src/main/java/withaknoe/ci_noel/tool/GenerateAst.class
 readme_old.md
+src/withaknoe/noel/lang/tool/classes/
