@@ -33,6 +33,7 @@ class Parser {
             if (match(DEF))  return function("function");
             if (match(LET))  return varDeclaration();
             if (match(LINE)) return primitiveDeclaration();
+            if (match(ARC))  return primitiveDeclaration();
             return statement();
         } catch (ParseError error) {
             synchronize();

@@ -19,7 +19,7 @@ public class Primitivizer implements Stmt.Visitor<Void> {
         this.interpreter = interpreter;
     }
 
-    // Entry point : clear frame and walk all statements.
+    // Entry point : clear frame and walk all ast nodes.
     void primitivize(List<Stmt> statements) {
         sink.clear();
         try {
@@ -72,16 +72,27 @@ public class Primitivizer implements Stmt.Visitor<Void> {
     // evaluate properties, build primitives, call sink.draw()
     @Override
     public Void visitPrimitiveStmt(Stmt.Primitive stmt) {
-        if (stmt.properties.size() != 4) {
+        if (stmt.primitiveKeyword.type == TokenType.LINE && (stmt.properties.size() != 4)) {
             throw new RuntimeError(stmt.primitiveKeyword, "Line properties expect 4 doubles.");
         }
-
+        if (stmt.primitiveKeyword.type == TokenType.ARC && (stmt.properties.size() != 7)) {
+            throw new RuntimeError(stmt.primitiveKeyword, "Arc properties expect 7 params (currently).");
+        }
         List<Double> doubles = toDouble(stmt.properties);
         Vec2 start = new Vec2(doubles.get(0), doubles.get(1));
         Vec2 end   = new Vec2(doubles.get(2), doubles.get(3));
-        Primitive p = new Primitive.Line(stmt.name, start, end);
-        System.out.println(p);
-        sink.add(p);
+
+        if (stmt.primitiveKeyword.type == TokenType.LINE) {
+            Primitive p = new Primitive.Line(stmt.name, start, end);
+            System.out.println(p);
+            sink.add(p);
+        } else if (stmt.primitiveKeyword.type == TokenType.ARC) {
+            double pushAt = doubles.get(4);
+            double pushStrength = doubles.get(5);
+            Primitive p = new Primitive.Arc(stmt.name, start, end, pushAt, pushStrength, 1);
+            System.out.println(p);
+            sink.add(p);
+        }
         return null;
     }
 
@@ -103,17 +114,6 @@ public class Primitivizer implements Stmt.Visitor<Void> {
         return null;
     }
 
-    //  Draw helpers
-
-    // Line statement example derived from CI methods
-    private Object line() {
-        // requires variable name
-        //          start coords
-        //          end   coords
-        return null;
-    }
-
-    // Stmt/Expr evaluation helpers, most live in Interpreter, these are FxSpecific
     // ~ Syntax Layer -> expr, concrete node -> Expr.Literal, Runtime value -> Object -> Double
     private List<Double> toDouble(List<Expr> values) {
         DecimalFormat df = new DecimalFormat("0.00");
@@ -123,10 +123,21 @@ public class Primitivizer implements Stmt.Visitor<Void> {
             // recognize node type
             if (expr instanceof Expr.Literal) {
                Object val = ((Expr.Literal) expr).value;
-               double val_dbl = (double) val; // <--- help here
-               doubles.add(Double.valueOf(df.format(val_dbl)));
+               double val_dbl = (double) val;
+               doubles.add(val_dbl);
+            } else if (expr instanceof Expr.Unary) {
+                Object e = interpreter.exposedEvaluate(expr);
+                doubles.add(asNumber(e));
             }
         }
         return doubles;
     }
+
+    private double asNumber(Object val) {
+        if (val instanceof Number) {
+            return ((Number) val).doubleValue();
+        }
+        throw new RuntimeError(null, "Expected numeric value, got " + val);
+    }
 }
+

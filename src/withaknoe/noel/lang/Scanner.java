@@ -18,10 +18,11 @@ public class Scanner {
         keywords = new HashMap<>();
         keywords.put("and",        AND);
         keywords.put("arc",        ARC);
-        // keywords.put("ascender",   ASCENDER);
-        // keywords.put("base",       BASE);
+        keywords.put("ascender",   ASCENDER);
+        keywords.put("base",       BASE);
+        keywords.put("capheight",  CAPHEIGHT);
         keywords.put("def",        DEF);
-        // keywords.put("descender",  DESCENDER);
+        keywords.put("descender",  DESCENDER);
         keywords.put("else",       ELSE);
         keywords.put("elseif",     ELSEIF); //TODO needs 2nd thought - elif...
         keywords.put("false",      FALSE);
@@ -31,7 +32,6 @@ public class Scanner {
         keywords.put("let",        LET);
         keywords.put("letter",     LETTER);
         keywords.put("line",       LINE);
-        // keywords.put("middle",     MIDDLE);
         keywords.put("number",     NUMBER);
         keywords.put("numeral",    NUMERAL);
         keywords.put("or",         OR);
@@ -44,6 +44,7 @@ public class Scanner {
         keywords.put("true",       TRUE);
         keywords.put("uses",       USES);
         keywords.put("while",      WHILE);
+        keywords.put("xheight",    XHEIGHT);
     }
 
     public Scanner(String source) { this.source = source;}

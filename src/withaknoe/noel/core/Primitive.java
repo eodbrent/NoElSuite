@@ -1,5 +1,7 @@
 package withaknoe.noel.core;
 
+import javafx.scene.shape.ArcType;
+
 public abstract class Primitive {
     public interface Visitor<R> {
         R visitLine(Line line);
@@ -18,8 +20,6 @@ public abstract class Primitive {
     public String getVarName() { return this.varName; }
     public Vec2 getStart()     { return this.start; }
     public Vec2 getEnd()       { return this.end; }
-    public void setStart() { }
-    public void setEnd() { }
 
     // place holder, might need this....
     public double[] toDouble(Vec2 point) {
@@ -46,37 +46,42 @@ public abstract class Primitive {
         public <R> R accept(Visitor<R> visitor) { return visitor.visitLine(this);}
     }
 
-    // Arc(double centerX, double centerY, double radiusX, double radiusY, double startAngle, double length)
     // strokeArc(double x, double y, double w, double h, double startAngle, double arcExtent, ArcType closure)
     //  Strokes an Arc using the current stroke paint.
     public static class Arc extends Primitive {
         enum Direction{CCW, CW}
 
-        private final Vec2 center;
+        // private final Vec2 center;
         private final Direction dir; // default direction is clockwise
-
-        public Arc(String name, Vec2 start, Vec2 end, Vec2 center, boolean clockwise){
+//        private final double width;
+//        private final double height;
+        private final double pushStrength;
+        private final double pushAt;
+        public Arc(String name, Vec2 start, Vec2 end, double pushAt, double pushStrength, int clockwise){ // eventually clockwise = boolean
             this.type    = "ARC";
             this.varName = name;
             this.start   = start;
             this.end     = end;
-            this.center  = center;
-
-            if (clockwise) {this.dir = Direction.CW; } else {this.dir = Direction.CCW;}
+            this.pushAt  = pushAt;
+            this.pushStrength = pushStrength;
+            // TODO not correct center, as it hasn't been pixilized yet.
+            // this.center  = new Vec2((start.x() + end.x()) / 2, (start.y() + end.y()) / 2);
+            // TODO clockwise boolean - will require primitivizer rework - right it casts all doubles from params
+            this.dir = clockwise == 1 ? Direction.CW : Direction.CCW;
         }
+        @Override
         public String toString() {
             // TODO add arc stuff
             return super.toString();
         }
 
-        public Vec2 getCenter() {
-            return this.center;
-        }
-
+        // public Vec2 getCenter() { return this.center; }
         public String getDirection() {
             return this.dir == Direction.CW ? "clockwise" : "counter-clockwise";
         }
 
+        public double getPushAt()      { return this.pushAt; }
+        public double getPushStrength() { return this.pushStrength; }
 
         @Override
         public <R> R accept(Visitor<R> visitor) {return visitor.visitArc(this);}

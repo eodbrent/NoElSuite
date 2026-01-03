@@ -2,39 +2,44 @@ package withaknoe.noel.fx;
 
 import javafx.scene.text.Font;
 
+
+// padPx -:- default will always be 0.1, but if 0 is set, there will not be a rectangle pad.
 class Layout {
 // settings           - ratio
 // coordinates/layout - pixel
     private final Rect canvasRect;
     private final Rect letterRect;
-    int fontHeightPx = 500;   // letter box Height (canvas height: fontheight + 2*pad)
-    double fontWidthPx;
-    double padPx     = 0;
-    double ascender  = 0.33;   // mid   <-  to ascender
-    double baseline  = 0.33;   // baseline  to mid
-    double descender = 0.34;  // descender to baseline
+    private final double fontHeightPx;   // letter box Height (canvas height: fontheight + 2*pad)
+    private double padPx;
+    private double ascender  = 0.35;   // mid   <-  to ascender
+    private double baseline  = 0.35;   // baseline  to mid
+    private double descender = 0.30;  // descender to baseline
     // Good light purple 188, 155, 212
-    private Rgb rgb = new Rgb(188, 155, 212);
+    private Rgb rgb = new Rgb(158, 115, 172);
     Font fira = Font.loadFont(getClass().getResourceAsStream("/fonts/FiraCode-Regular.ttf"), 16);
-    Layout(int fontHeightPx, double pad, double ascender, double baseline, double descender, Rgb rgb) {
-        if (fontHeightPx != 0) { this.fontHeightPx = fontHeightPx; }
-        if (pad != 0)          { this.padPx = fontHeightPx * pad; }
-        double fontWidthPx = fontHeightPx * 0.66;
-        this.fontWidthPx =      fontWidthPx;
+    Layout(double fontHeightPx, double pad, double ascender, double baseline, double descender, Rgb rgb) {
+        // ~ ternary -> variable = (condition) ? expressionTrue :  expressionFalse;
+        this.fontHeightPx        = fontHeightPx == 0 ? 500 : fontHeightPx;
+        if (pad != 0) this.padPx = this.fontHeightPx * pad;
 
-        this.letterRect =      new Rect(padPx, padPx, fontWidthPx, fontHeightPx);
-        this.canvasRect =      new Rect(0.0, 0.0, fontWidthPx + (padPx * 2), fontHeightPx + (padPx *2));
+        double fontWidthPx = this.fontHeightPx * 0.6;
 
-        if (ascender != 0.0)   { this.ascender = ascender; }
-        if (baseline != 0.0)   { this.baseline = baseline; }
-        if (descender != 0.0)  { this.descender = descender; }
-        if (rgb == null)       { this.rgb = new Rgb((int)(Math.random() * 255), (int)(Math.random() * 255), (int)(Math.random() * 255));}
+        this.letterRect          = new Rect(padPx, padPx, fontWidthPx, this.fontHeightPx);
+        this.canvasRect          = new Rect(0.0, 0.0, fontWidthPx + (padPx * 2), this.fontHeightPx + (padPx * 2));
+
+        if (ascender != 0.0)       this.ascender = ascender;
+        if (baseline != 0.0)       this.baseline = baseline;
+        if (descender != 0.0)      this.descender = descender;
+        if (rgb != null)           this.rgb = rgb;
+            //this.rgb = new Rgb((int)(Math.random() * 255), (int)(Math.random() * 255), (int)(Math.random() * 255));
     }
+                                                             // temporary default until I get this thing moving
+    public double fontHeightPx() { return this.fontHeightPx; }
+    public double fontWidthPx()  { return this.fontHeightPx * .66; } // canvasWidth
+    public Rect getCanvasRect()  { return this.canvasRect; }
+    public Rect getLetterRect()  { return this.letterRect; }
+    public Rgb getRgb()          { return this.rgb; }
 
-    public double fontWidthPx() { return this.fontHeightPx * .66; } // canvasWidth
-    public Rect getCanvasRect() { return this.canvasRect; }
-    public Rect getLetterRect() { return this.letterRect; }
-    public Rgb getRgb()         { return this.rgb; }
     // TODO add letter rectangle
     @Override
     public String toString() {
@@ -43,29 +48,13 @@ class Layout {
                 "|    pad: " + this.padPx + "px                    |\n" +
                 "|    rgb: " + this.rgbToString() + "        |\n" +
                 "| ---- ASCENDER  " + this.ascender + "%, " + this.getAscenderPx() + "y ---- |\n" +
-                "| ------------  middle ------------ |\n" +
+                "| ------------  cHeight ------------ |\n" +
                 "| ---- BASELINE  " + this.baseline + "%, " + this.getBaselinePx() + "y ---- |\n" +
                 "| ---- DESCENDER " + this.descender + "%, " + this.getDescenderPx() + "y ---- |\n";
                 // "| Canvas: " +
         StringBuilder strB = new StringBuilder(str);
         strB.append(this.canvasRect.toString()); // TODO First run will be test of this.
         return strB.toString();
-    }
-
-    private Rect initLetterRect(int fontHeightPx) {
-        double x = this.padPx;
-        double y = this.padPx;
-        double w = this.fontWidthPx();
-        double h = fontHeightPx;
-        Rect r = new Rect(x, y, w, h);
-        return r;
-    }
-
-    private Rect initCanvasRect(int fontHeightPx) {
-        double w =  this.fontWidthPx() + (this.padPx * 2);
-        double h = fontHeightPx + (this.padPx * 2);
-        Rect r = new Rect(0.0,0.0, w, h);
-        return r;
     }
 
     public String rgbToString() {
