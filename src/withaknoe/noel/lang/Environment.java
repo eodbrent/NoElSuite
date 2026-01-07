@@ -22,7 +22,7 @@ public class Environment {
 
         if (enclosing != null) return enclosing.get(name);
 
-        throw new RuntimeError(name, "Undefine variable '" + name.lexeme + ".");
+        throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
     }
 
     void assign(Token name, Object value) {

@@ -39,7 +39,7 @@ public class NoElFX extends Application {
         //   Therefore, 16px = 12pt.
         // ~ NoElFX pt → SVG pt → Screen via DPI → Perfect scaling
 
-        Layout layout = new Layout(0, 0.1, 0.33, 0.33, 0.34, null);
+        Layout layout = new Layout(0, 0.1, 0.7, 0.4, 0.25, -0.3,null);
         double canvasWidth = layout.getCanvasRect().getWidth();
         double canvasHeight = layout.getCanvasRect().getHeight();
         Canvas canvas = new Canvas(canvasWidth, canvasHeight);
@@ -99,26 +99,34 @@ public class NoElFX extends Application {
         // right
         gc.strokeLine(layout.getLetterRect().right(), layout.getLetterRect().top(), layout.getLetterRect().right(), layout.getLetterRect().bottom());
         gc.setLineWidth(2.0);
-        // ~ I like the guidelines
 
-        // TOP / ASCENDER -- ascender is from cap height to ascender
+        // guidelines
+        // ASCENDER --
         gc.setStroke(Color.BLUE);
-        //gc.setStroke(Color.BLACK);
         gc.strokeLine(layout.getCanvasRect().left(), layout.getLetterRect().top(), layout.getCanvasRect().right(), layout.getLetterRect().top()); // just top line
-        // CAPHEIGHT -- ^ but actually
+        System.out.println("Ascender  - JavaFX y: " + layout.getLetterRect().top() + " or " + layout.getAscenderPx() + ", NoElFX y (from baseline): " + layout.getNoElFXAscenderPx());
+        // CAPHEIGHT --
         gc.setLineWidth(1);
         gc.setLineDashes(12.0); // dashed lines so it looks like old school penmanship paper
-        gc.setStroke(Color.LIGHTBLUE);
-        gc.strokeLine(layout.getLetterRect().left(), layout.getAscenderPx(), layout.getLetterRect().right(), layout.getAscenderPx());
+        gc.setStroke(Color.GREEN);
+        gc.strokeLine(layout.getLetterRect().left(), layout.getCapHeightPx(), layout.getLetterRect().right(), layout.getCapHeightPx());
+        System.out.println("CapHeight - JavaFX y: " + layout.getCapHeightPx() + ", NoElFX y (from baseline): " + layout.getNoElFXCapHeightPx());
+        // X-HEIGHT --
+        gc.setLineWidth(1);
+        gc.setLineDashes(12.0); // dashed lines so it looks like old school penmanship paper
+        gc.setStroke(Color.ORANGE);
+        gc.strokeLine(layout.getLetterRect().left(), layout.getXHeightPx(), layout.getLetterRect().right(), layout.getXHeightPx());
+        System.out.println("X-Height  - JavaFX y: " + layout.getXHeightPx() + ", NoElFX y (from baseline): " + layout.getNoElFXXHeightPx());
         // BASE
         gc.setLineWidth(2.0);
         gc.setLineDashes(0);
         gc.setStroke(Color.PINK);
         gc.strokeLine(layout.getCanvasRect().left(), layout.getBaselinePx(), layout.getCanvasRect().right(), layout.getBaselinePx());
+        System.out.println("Baseline  - JavaFX y: " + layout.getBaselinePx() + ", NoElFX y (from baseline): " + layout.getNoElFXBaselinePx());
         // DESCENDER
         gc.setStroke(Color.BLUE);
         gc.strokeLine(layout.getCanvasRect().left(), layout.getDescenderPx(), layout.getCanvasRect().right(), layout.getDescenderPx());
-
+        System.out.println("Descender - JavaFX y: " + layout.getLetterRect().bottom() + " or " + layout.getDescenderPx() + ", NoElFX y (from baseline): " + layout.getNoElFXDescenderPx());
         stage.setTitle("NoEl Renderer - NoElFX");
         Scene scene = new Scene(root, canvasWidth, canvasHeight);
 
@@ -141,14 +149,17 @@ public class NoElFX extends Application {
         stage.show();
         // FINALLY
         FXRenderSink sink = new FXRenderSink();
-        //start 75%x, 25%y, end 50%x, 95%y
-        //String source = "line myLine=[0.75, 0.25, 0.5, 0.95].";
-        //start 50%x, 10%y, end 75%x, 90%y
-        //String source = "line myLine=[0.5, 0.1, 0.75, 0.9].";
-        // B
-        //String source = "line myLine=[0.05, 0.0, 0.05, 1.0].";
-        String source =
-                // define B
+
+        /* def dwayne() {
+        "line shaft=[0.5, 0.75, 0.5, 0.3]." +
+                "arc bell=[0.2, 0.2, 0.8, 0.2, 0.5,-0.8,1]." +
+                "arc left=[0.0, 0.75, 0.3, 0.75, 0.5, -0.6,1]." +
+                "arc right=[0.7, 0.75, 1.0, 0.75, 0.5, -0.6,1].";
+        // }
+        */
+
+        /*
+            define B
                 "line myLine=[0.05, 0.0, 0.05, 0.66]. " +
                 "arc topArc=[0.05, 0.01, 0.05, 0.33, 0.7, -1.2,1]. " +
                 "arc bottomArc=[0.05, 0.33, 0.05, 0.66, 0.6, -1.25,1]. " +
@@ -156,6 +167,13 @@ public class NoElFX extends Application {
                 "line stem=[0.5, 0.33, 0.45, 0.63]. " +
                 "arc i=[0.45, 0.63, 0.53, 0.63, 0.3, 1, 1]. " +
                 "line dot=[0.5,0.23,0.501,0.23].";
+         */
+        String source =
+                 "line newAsc=[0.1, 0.7, 0.1,-0.2]." +
+                "line newCapH=[0.2, 0.4, 0.2,-0.1]." +
+                  "line newXH=[0.3, 0.25,0.3, 0.0]." +
+                "line newDesc=[0.4,-0.3, 0.4, 0.1].";
+
         NoEl.run(source, sink);
         List<Primitive> ape = sink.primitives();
         Renderer renderer = new Renderer(gc, ape, layout);

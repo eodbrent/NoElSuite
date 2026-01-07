@@ -19,18 +19,18 @@ public class Renderer implements Primitive.Visitor<Void> {
         this.gc = gc;
         this.primitives = primitives;
         this.layout = layout;
-        this.origin_x = layout.getLetterRect().getX();
-        this.origin_y = layout.getLetterRect().getY();
+        this.origin_x = layout.getLetterRect().left();
+        this.origin_y = layout.getBaselinePx();
     }
 
     @Override
     public Void visitLine(Primitive.Line line){
         double start_x = this.origin_x + pX(line.getStart().x(), layout.fontWidthPx());
-        double start_y = this.origin_y + pX(line.getStart().y(), layout.fontHeightPx());
+        double start_y = this.origin_y - pX(line.getStart().y(), layout.fontHeightPx());
         double end_x   = this.origin_x + pX(line.getEnd().x(), layout.fontWidthPx());
-        double end_y   = this.origin_y + pX(line.getEnd().y(), layout.fontHeightPx());
+        double end_y   = this.origin_y - pX(line.getEnd().y(), layout.fontHeightPx());
         this.gc.setStroke(Color.BLACK);
-        gc.setLineWidth(20.0);
+        //gc.setLineWidth(200.0);
         this.gc.strokeLine(start_x, start_y, end_x, end_y);
         return null;
     }
@@ -76,11 +76,10 @@ public class Renderer implements Primitive.Visitor<Void> {
         gc.moveTo(start_x, start_y);
         // ~
         gc.quadraticCurveTo(pushTo_x, pushTo_y, end_x, end_y);
-        gc.setLineWidth(20.0);
+        //gc.setLineWidth(60.0);
         gc.stroke();
         return null;
     }
-
     public void render() {
         for (Primitive p : primitives) {
             p.accept(this);

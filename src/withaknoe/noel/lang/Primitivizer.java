@@ -78,6 +78,8 @@ public class Primitivizer implements Stmt.Visitor<Void> {
         if (stmt.primitiveKeyword.type == TokenType.ARC && (stmt.properties.size() != 7)) {
             throw new RuntimeError(stmt.primitiveKeyword, "Arc properties expect 7 params (currently).");
         }
+
+        // TODO create new function to call doDouble through
         List<Double> doubles = toDouble(stmt.properties);
         Vec2 start = new Vec2(doubles.get(0), doubles.get(1));
         Vec2 end   = new Vec2(doubles.get(2), doubles.get(3));
@@ -126,8 +128,11 @@ public class Primitivizer implements Stmt.Visitor<Void> {
                double val_dbl = (double) val;
                doubles.add(val_dbl);
             } else if (expr instanceof Expr.Unary) {
-                Object e = interpreter.exposedEvaluate(expr);
-                doubles.add(asNumber(e));
+                Object o = interpreter.exposedEvaluate(expr);
+                doubles.add(asNumber(o));
+            } else if (expr instanceof Expr.Variable) {
+                Object val = interpreter.globals.get(((Expr.Variable) expr).name);
+                val = (Expr.);
             }
         }
         return doubles;

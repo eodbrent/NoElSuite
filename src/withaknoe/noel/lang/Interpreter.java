@@ -24,6 +24,12 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
             @Override
             public String toString() { return "<native fn>"; }
         });
+
+        globals.define("ascender", 0.7);
+        globals.define("capheight", 0.4);
+        globals.define("xheight", 0.25);
+        globals.define("baseline", 0.0);
+        globals.define("descender", -0.3);
     }
 
     void interpret(List<Stmt> statements) {
