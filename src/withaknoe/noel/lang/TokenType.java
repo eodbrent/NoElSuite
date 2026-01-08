@@ -20,7 +20,7 @@ public enum TokenType {
     DEF, LET, SETTINGS,
     LETTER, SYMBOL, NUMERAL, OTHER, USES,
     ASCENDER, CAPHEIGHT, XHEIGHT, BASE, DESCENDER,
-    ARC, LINE, CURVE, DOT, // !TODO more to come
+    ARC, CURVE, DOT, LINE, SWEEP, // !TODO more to come
     PRINT, // possibly useful for debug or other assistive capes
     IF, ELSE, ELSEIF, WHILE, FOR,
     TRUE, FALSE, OR, AND,

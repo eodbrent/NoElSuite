@@ -17,6 +17,7 @@ public class GenerateAst {
             "Assign    : Token name, Expr value",
             "Binary    : Expr left, Token operator, Expr right",
             "Call      : Expr callee, Token paren, List<Expr> arguments",
+            "Get       : Expr object, Token name",
             "Grouping  : Expr expression",
             "Literal   : Object value",
             "Logical   : Expr left, Token operator, Expr right",
@@ -33,7 +34,7 @@ public class GenerateAst {
             "If         : Expr condition, Stmt thenBranch, Stmt elseBranch",
             "Primitive  : Token primitiveKeyword, Token name, List<Expr> properties",
             "Print      : Expr expression",
-            "Return     : Token keyword, Expr value", // not sure I like how Lox returns
+            "Return     : Token keyword, Expr value", // ~ will change when I get here. NoEl returns are handled much differently
             "Let        : Token name, Expr initializer",
             "While      : Expr condition, Stmt body"));
     }

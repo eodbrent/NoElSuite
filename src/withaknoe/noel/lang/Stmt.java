@@ -5,147 +5,141 @@ import java.util.List;
 
 abstract class Stmt {
     interface Visitor<R> {
-        R visitBlockStmt(Block stmt);
-        R visitExpressionStmt(Expression stmt);
-        R visitFunctionStmt(Function stmt);
-        R visitIfStmt(If stmt);
-        R visitLetStmt(Let stmt);
-        R visitPrimitiveStmt(Primitive Stmt);
-        R visitPrintStmt(Print stmt);
-        R visitReturnStmt(Return stmt);
-        R visitWhileStmt(While stmt);
+    R visitBlockStmt(Block stmt);
+    R visitExpressionStmt(Expression stmt);
+    R visitFunctionStmt(Function stmt);
+    R visitIfStmt(If stmt);
+    R visitPrimitiveStmt(Primitive stmt);
+    R visitPrintStmt(Print stmt);
+    R visitReturnStmt(Return stmt);
+    R visitLetStmt(Let stmt);
+    R visitWhileStmt(While stmt);
     }
-
     static class Block extends Stmt {
-        Block(List<Stmt> statements) {
+    Block(List<Stmt> statements) {
     this.statements = statements;
     }
 
-        @Override
-        <R> R accept(Visitor<R> visitor) {
-            return visitor.visitBlockStmt(this);
-        }
-
-        final List<Stmt> statements;
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+        return visitor.visitBlockStmt(this);
     }
 
+    final List<Stmt> statements;
+    }
     static class Expression extends Stmt {
-        Expression(Expr expression) {
+    Expression(Expr expression) {
     this.expression = expression;
     }
 
-        @Override
-        <R> R accept(Visitor<R> visitor) {
-            return visitor.visitExpressionStmt(this);
-        }
-
-        final Expr expression;
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+        return visitor.visitExpressionStmt(this);
     }
 
+    final Expr expression;
+    }
     static class Function extends Stmt {
-        Function(Token name, List<Token> params, List<Stmt> body) {
-            this.name = name;
-            this.params = params;
-            this.body = body;
-       }
+    Function(Token name, List<Token> params, List<Stmt> body) {
+    this.name = name;
+    this.params = params;
+    this.body = body;
+    }
 
-        @Override
-        <R> R accept(Visitor<R> visitor) {
+    @Override
+    <R> R accept(Visitor<R> visitor) {
         return visitor.visitFunctionStmt(this);
     }
 
-        final Token name;
-        final List<Token> params;
-        final List<Stmt> body;
+    final Token name;
+    final List<Token> params;
+    final List<Stmt> body;
+    }
+    static class If extends Stmt {
+    If(Expr condition, Stmt thenBranch, Stmt elseBranch) {
+    this.condition = condition;
+    this.thenBranch = thenBranch;
+    this.elseBranch = elseBranch;
     }
 
-    static class If extends Stmt {
-        If(Expr condition, Stmt thenBranch, Stmt elseBranch) {
-            this.condition = condition;
-            this.thenBranch = thenBranch;
-            this.elseBranch = elseBranch;
-        }
-
-        @Override
-        <R> R accept(Visitor<R> visitor) {
+    @Override
+    <R> R accept(Visitor<R> visitor) {
         return visitor.visitIfStmt(this);
     }
 
-        final Expr condition;
-        final Stmt thenBranch;
-        final Stmt elseBranch;
+    final Expr condition;
+    final Stmt thenBranch;
+    final Stmt elseBranch;
     }
-
-    static class Let extends Stmt {
-        Let(Token name, Expr initializer) {
-            this.name = name;
-            this.initializer = initializer;
-        }
-
-        @Override
-        <R> R accept(Visitor<R> visitor) {
-            return visitor.visitLetStmt(this);
-        }
-
-        final Token name;
-        final Expr initializer;
-    }
-
     static class Primitive extends Stmt {
-        Primitive(Token primitiveKeyword, String name, List<Expr> properties) {
-            this.primitiveKeyword = primitiveKeyword;
-            this.name = name;
-            this.properties = properties;
-        }
-
-        @Override
-        <R> R accept(Visitor<R> visitor) { return visitor.visitPrimitiveStmt(this);}
-
-        final Token primitiveKeyword;
-        final String name;
-        final List<Expr> properties;
+    Primitive(Token primitiveKeyword, Token name, List<Expr> properties) {
+    this.primitiveKeyword = primitiveKeyword;
+    this.name = name;
+    this.properties = properties;
     }
 
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+        return visitor.visitPrimitiveStmt(this);
+    }
+
+    final Token primitiveKeyword;
+    final Token name;
+    final List<Expr> properties;
+    }
     static class Print extends Stmt {
-        Print(Expr expression) {
+    Print(Expr expression) {
     this.expression = expression;
     }
 
-        @Override
-        <R> R accept(Visitor<R> visitor) {
-            return visitor.visitPrintStmt(this);
-        }
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+        return visitor.visitPrintStmt(this);
+    }
 
-        final Expr expression;
+    final Expr expression;
     }
     static class Return extends Stmt {
-        Return(Token keyword, Expr value) {
-            this.keyword = keyword;
-            this.value = value;
-        }
-
-        @Override
-        <R> R accept(Visitor<R> visitor) {
-            return visitor.visitReturnStmt(this);
-        }
-
-        final Token keyword;
-        final Expr value;
+    Return(Token keyword, Expr value) {
+    this.keyword = keyword;
+    this.value = value;
     }
 
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+        return visitor.visitReturnStmt(this);
+    }
+
+    final Token keyword;
+    final Expr value;
+    }
+    static class Let extends Stmt {
+    Let(Token name, Expr initializer) {
+    this.name = name;
+    this.initializer = initializer;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+        return visitor.visitLetStmt(this);
+    }
+
+    final Token name;
+    final Expr initializer;
+    }
     static class While extends Stmt {
-        While(Expr condition, Stmt body) {
-            this.condition = condition;
-            this.body = body;
-        }
+    While(Expr condition, Stmt body) {
+    this.condition = condition;
+    this.body = body;
+    }
 
-        @Override
-        <R> R accept(Visitor<R> visitor) {
-            return visitor.visitWhileStmt(this);
-        }
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+        return visitor.visitWhileStmt(this);
+    }
 
-        final Expr condition;
-        final Stmt body;
+    final Expr condition;
+    final Stmt body;
     }
 
     abstract <R> R accept(Visitor<R> visitor);

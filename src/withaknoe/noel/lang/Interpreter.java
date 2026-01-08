@@ -32,6 +32,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
         globals.define("descender", -0.3);
     }
 
+    // This entry is not needed with Primitivizer - Primitivizer uses interpreter for nonprimitives
     void interpret(List<Stmt> statements) {
         try {
             for (Stmt statement : statements) {
@@ -42,9 +43,39 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
         }
     }
 
-    // public for FxVisitor
+    // public for Primitivizer
     void interpret(Stmt statement) {
         execute(statement);
+    }
+
+    private Object evaluate(Expr expr) {
+        return expr.accept(this);
+    }
+
+    private void execute(Stmt stmt) {
+        stmt.accept(this);
+    }
+
+    void executeBlock(List<Stmt> statements, Environment environment) {
+        Environment previous = this.environment;
+        try {
+            this.environment = environment;
+
+            for (Stmt statement : statements) {
+                execute(statement);
+            }
+        } finally {
+            this.environment = previous;
+        }
+    }
+    /*----------------------------------------------
+    //               STATEMENTS                   //
+    ----------------------------------------------*/
+    //region Statements
+    @Override
+    public Void visitBlockStmt(Stmt.Block stmt) {
+        executeBlock(stmt.statements, new Environment(environment));
+        return null;
     }
 
     @Override
@@ -55,7 +86,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
-        NoElFunction function = new NoElFunction(stmt, environment);
+        NoElFunction function = new NoElFunction(stmt, environment, false);
         environment.define(stmt.name.lexeme, function);
         return null;
     }
@@ -70,9 +101,9 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
         return null;
     }
 
+    // primitivizer handles
     @Override
     public Void visitPrimitiveStmt(Stmt.Primitive stmt) {
-
         return null;
     }
 
@@ -92,8 +123,8 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
     }
 
     // Lox does not require an initializer. NoEl does, as well as only immutable variables.
-    //  !TODO WHEN .FX, .CORE and .LANG are playing nice, implement explicit declaration and immutable only vars.
-    //  !using lox's implementation until the previous requirements are met.
+    //  TODO WHEN .FX, .CORE and .LANG are playing nice, implement explicit declaration and immutable only vars.
+    //  ~ using lox's implementation until the previous requirements are met.
     @Override
     public Void visitLetStmt(Stmt.Let stmt) {
         Object value = null;
@@ -112,12 +143,89 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
         }
         return null;
     }
-
+    //endregion
+    /*----------------------------------------------
+    //               EXPRESSIONS                  //
+    ----------------------------------------------*/
+    //region Expressions
     @Override
     public Object visitAssignExpr(Expr.Assign expr) {
         Object value = evaluate(expr.value);
         environment.assign(expr.name, value);
         return value;
+    }
+
+    @Override
+    public Object visitBinaryExpr(Expr.Binary expr) {
+        Object left = evaluate(expr.left);
+        Object right = evaluate(expr.right);
+
+        switch (expr.operator.type) {
+            case EX_EQUAL:
+                return !isEqual(left, right);
+            case EQUAL_EQUAL:
+                return isEqual(left, right);
+            case GREATER:
+                checkNumberOperands(expr.operator, left, right);
+                return (double)left > (double)right;
+            case GREATER_EQUAL:
+                checkNumberOperands(expr.operator, left, right);
+                return (double)left >= (double)right;
+            case LESS:
+                checkNumberOperands(expr.operator, left, right);
+                return (double)left < (double)right;
+            case LESS_EQUAL:
+                checkNumberOperands(expr.operator, left, right);
+                return (double)left <= (double)right;
+            case DASH:
+                checkNumberOperands(expr.operator, left, right);
+                return (double)left - (double)right;
+            case PLUS:
+                checkNumberOperands(expr.operator, left, right);
+                return (double)left + (double)right; // Lox uses as concat, NoEl doesn't need concat (yet)
+            case SLASH:
+                checkNumberOperands(expr.operator, left, right);
+                return (double)left / (double)right;
+            case STAR:
+                checkNumberOperands(expr.operator, left, right);
+                return (double)left * (double)right;
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitCallExpr(Expr.Call expr) {
+        Object callee = evaluate(expr.callee);
+
+        List<Object> arguments = new ArrayList<>();
+        for (Expr argument : expr.arguments) {
+            arguments.add(evaluate(argument));
+        }
+
+        if (!(callee instanceof NoElCallable)) {
+            throw new RuntimeError(expr.paren, "Can only call functions and classes.");
+        }
+
+        NoElCallable function = (NoElCallable)callee;
+        if (arguments.size() != function.arity()) {
+            throw new RuntimeError(expr.paren, "Expected " + function.arity() + " arguments but got " + arguments.size() + ".");
+        }
+        return function.call(this, arguments);
+    }
+
+    @Override
+    public Object visitGetExpr(Expr.Get expr) {
+        Object object = evaluate(expr.object);
+        if (object instanceof NoElInstance) {
+            return ((NoElInstance) object).get(expr.name);
+        }
+
+        throw new RuntimeError(expr.name, "Only instances have properties.");
+    }
+
+    @Override
+    public Object visitGroupingExpr(Expr.Grouping expr) {
+        return evaluate(expr.expression);
     }
 
     @Override
@@ -157,7 +265,8 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
     public Object visitVariableExpr(Expr.Variable expr) {
         return environment.get(expr.name);
     }
-
+    //endregion
+    //region Helpers
     private void checkNumberOperand(Token operator, Object operand) {
         if (operand instanceof Double) return;
         throw new RuntimeError(operator, "Operand must be a number.");
@@ -196,95 +305,6 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
         return object.toString();
     }
 
-    @Override
-    public Object visitGroupingExpr(Expr.Grouping expr) {
-        return evaluate(expr.expression);
-    }
-
     public Object exposedEvaluate(Expr expr) { return evaluate(expr); }
-    private Object evaluate(Expr expr) {
-        return expr.accept(this);
-    }
-
-    private void execute(Stmt stmt) {
-        stmt.accept(this);
-    }
-
-    void executeBlock(List<Stmt> statements, Environment environment) {
-        Environment previous = this.environment;
-        try {
-            this.environment = environment;
-
-            for (Stmt statement : statements) {
-                execute(statement);
-            }
-        } finally {
-            this.environment = previous;
-        }
-    }
-
-    @Override
-    public Void visitBlockStmt(Stmt.Block stmt) {
-        executeBlock(stmt.statements, new Environment(environment));
-        return null;
-    }
-
-    @Override
-    public Object visitBinaryExpr(Expr.Binary expr) {
-        Object left = evaluate(expr.left);
-        Object right = evaluate(expr.right);
-
-        switch (expr.operator.type) {
-            case EX_EQUAL:
-                return !isEqual(left, right);
-            case EQUAL_EQUAL:
-                return isEqual(left, right);
-            case GREATER:
-                checkNumberOperands(expr.operator, left, right);
-                return (double)left > (double)right;
-            case GREATER_EQUAL:
-                checkNumberOperands(expr.operator, left, right);
-                return (double)left >= (double)right;
-            case LESS:
-                checkNumberOperands(expr.operator, left, right);
-                return (double)left < (double)right;
-            case LESS_EQUAL:
-                checkNumberOperands(expr.operator, left, right);
-                return (double)left <= (double)right;
-            case DASH:
-                checkNumberOperands(expr.operator, left, right);
-                return (double)left - (double)right;
-            case PLUS:
-                checkNumberOperands(expr.operator, left, right);
-                return (double)left + (double)right; // Lox uses as concat, NoEl doesn't need concat (yet)
-            case SLASH:
-                checkNumberOperands(expr.operator, left, right);
-                return (double)left / (double)right;
-            case STAR:
-                checkNumberOperands(expr.operator, left, right);
-                return (double)left * (double)right;
-        }
-
-        return null;
-    }
-
-    @Override
-    public Object visitCallExpr(Expr.Call expr) {
-        Object callee = evaluate(expr.callee);
-
-        List<Object> arguments = new ArrayList<>();
-        for (Expr argument : expr.arguments) {
-            arguments.add(evaluate(argument));
-        }
-
-        if (!(callee instanceof NoElCallable)) {
-            throw new RuntimeError(expr.paren, "Can only call functions and classes.");
-        }
-
-        NoElCallable function = (NoElCallable)callee;
-        if (arguments.size() != function.arity()) {
-            throw new RuntimeError(expr.paren, "Expected " + function.arity() + " arguments but got " + arguments.size() + ".");
-        }
-        return function.call(this, arguments);
-    }
+    //endregion
 }

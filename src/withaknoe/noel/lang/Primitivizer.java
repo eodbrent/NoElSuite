@@ -82,16 +82,26 @@ public class Primitivizer implements Stmt.Visitor<Void> {
         // TODO create new function to call doDouble through
         List<Double> doubles = toDouble(stmt.properties);
         Vec2 start = new Vec2(doubles.get(0), doubles.get(1));
-        Vec2 end   = new Vec2(doubles.get(2), doubles.get(3));
+        Vec2 end = new Vec2(doubles.get(2), doubles.get(3));
 
-        if (stmt.primitiveKeyword.type == TokenType.LINE) {
-            Primitive p = new Primitive.Line(stmt.name, start, end);
+        if (stmt.primitiveKeyword.type == TokenType.ARC) {
+            double width = doubles.get(4);
+            double height = doubles.get(5);
+            double angle = doubles.get(6);
+            double angleExt = doubles.get(7);
+            Primitive p = new Primitive.Arc(stmt.name.lexeme, start, end, width, height, angle, angleExt, 1);
+        } else if (stmt.primitiveKeyword.type == TokenType.CURVE) {
+
+        } else if (stmt.primitiveKeyword.type == TokenType.DOT) {
+
+        } else if (stmt.primitiveKeyword.type == TokenType.LINE) {
+            Primitive p = new Primitive.Line(stmt.name.lexeme, start, end);
             System.out.println(p);
             sink.add(p);
-        } else if (stmt.primitiveKeyword.type == TokenType.ARC) {
+        } else if (stmt.primitiveKeyword.type == TokenType.SWEEP) {
             double pushAt = doubles.get(4);
             double pushStrength = doubles.get(5);
-            Primitive p = new Primitive.Arc(stmt.name, start, end, pushAt, pushStrength, 1);
+            Primitive p = new Primitive.Sweep(stmt.name.lexeme, start, end, pushAt, pushStrength);
             System.out.println(p);
             sink.add(p);
         }
@@ -132,7 +142,7 @@ public class Primitivizer implements Stmt.Visitor<Void> {
                 doubles.add(asNumber(o));
             } else if (expr instanceof Expr.Variable) {
                 Object val = interpreter.globals.get(((Expr.Variable) expr).name);
-                val = (Expr.);
+                //val = (Expr.);
             }
         }
         return doubles;

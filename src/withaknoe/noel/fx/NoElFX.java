@@ -150,14 +150,6 @@ public class NoElFX extends Application {
         // FINALLY
         FXRenderSink sink = new FXRenderSink();
 
-        /* def dwayne() {
-        "line shaft=[0.5, 0.75, 0.5, 0.3]." +
-                "arc bell=[0.2, 0.2, 0.8, 0.2, 0.5,-0.8,1]." +
-                "arc left=[0.0, 0.75, 0.3, 0.75, 0.5, -0.6,1]." +
-                "arc right=[0.7, 0.75, 1.0, 0.75, 0.5, -0.6,1].";
-        // }
-        */
-
         /*
             define B
                 "line myLine=[0.05, 0.0, 0.05, 0.66]. " +
@@ -168,11 +160,15 @@ public class NoElFX extends Application {
                 "arc i=[0.45, 0.63, 0.53, 0.63, 0.3, 1, 1]. " +
                 "line dot=[0.5,0.23,0.501,0.23].";
          */
-        String source =
-                 "line newAsc=[0.1, 0.7, 0.1,-0.2]." +
+        /*
+            guideline tests
+                "line newAsc=[baseline, ascender, 0.1,-0.2]." +
                 "line newCapH=[0.2, 0.4, 0.2,-0.1]." +
                   "line newXH=[0.3, 0.25,0.3, 0.0]." +
                 "line newDesc=[0.4,-0.3, 0.4, 0.1].";
+         */
+        String source = "line newLine=[0.1,0.65, 0.9, -0.25].";
+
 
         NoEl.run(source, sink);
         List<Primitive> ape = sink.primitives();

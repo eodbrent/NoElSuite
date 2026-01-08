@@ -2,6 +2,7 @@ package withaknoe.noel.fx;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.ArcType;
 import withaknoe.noel.core.Primitive;
 import java.util.List;
 
@@ -23,6 +24,36 @@ public class Renderer implements Primitive.Visitor<Void> {
         this.origin_y = layout.getBaselinePx();
     }
 
+    //    JavaFX strokeArc(double x, double y, double w, double h, double startAngle, double arcExtent, ArcType closure)
+    //    x - the X coordinate of the arc. --  y - the Y coordinate of the arc.
+    //    w - the width of the arc.        --  h - the height of the arc.
+    //    startAngle - the starting angle of the arc in degrees. arcExtent - arcExtent the angular extent of the arc in degrees.
+    //    closure - (Round, Chord, Open).
+    @Override
+    public Void visitArc(Primitive.Arc arc) {
+        double x = this.origin_x + pX(arc.getStart().x(), layout.fontWidthPx());
+        double y = this.origin_y + pX(arc.getStart().y(), layout.fontHeightPx());
+        double w = pX(arc.getWidth(), layout.fontWidthPx());
+        double h = pX(arc.getHeight(), layout.fontHeightPx());
+        double angle = arc.getAngle();
+        double aExtent = arc.getAngleExt();
+        gc.strokeRect(x,y,w,h);
+        gc.strokeArc(x,y,w,h,angle,aExtent, ArcType.OPEN);
+        return null;
+    }
+
+    @Override
+    public Void visitCurve(Primitive.Curve curve) {
+
+        return null;
+    }
+
+    @Override
+    public Void visitDot(Primitive.Dot dot) {
+
+        return null;
+    }
+
     @Override
     public Void visitLine(Primitive.Line line){
         double start_x = this.origin_x + pX(line.getStart().x(), layout.fontWidthPx());
@@ -34,38 +65,21 @@ public class Renderer implements Primitive.Visitor<Void> {
         this.gc.strokeLine(start_x, start_y, end_x, end_y);
         return null;
     }
-    //    JavaFX strokeArc(double x, double y, double w, double h, double startAngle, double arcExtent, ArcType closure)
-    //    x - the X coordinate of the arc. --  y - the Y coordinate of the arc.
-    //    w - the width of the arc.        --  h - the height of the arc.
-    //    startAngle - the starting angle of the arc in degrees. arcExtent - arcExtent the angular extent of the arc in degrees.
-    //    closure - (Round, Chord, Open).
-//    @Override
-//    public Void visitArc(Primitive.Arc arc) {
-//        double x = this.origin_x + pX(arc.getStart().x(), layout.fontWidthPx());
-//        double y = this.origin_y + pX(arc.getStart().y(), layout.fontHeightPx());
-//        double w = pX(arc.getWidth(), layout.fontWidthPx());
-//        double h = pX(arc.getHeight(), layout.fontHeightPx());
-//        double angle = arc.getAngle();
-//        double aExtent = arc.getAngExt();
-//        gc.strokeRect(x,y,w,h);
-//        gc.strokeArc(x,y,w,h,angle,aExtent, ArcType.OPEN);
-//        return null;
-//    }
 
     // TODO Change this Arc to curve, or other term. use basic arc above for easy rounding of arcs without control pts
     @Override
-    public Void visitArc(Primitive.Arc arc) {
-        double start_x = this.origin_x + pX(arc.getStart().x(), layout.fontWidthPx());
-        double start_y = this.origin_y + pX(arc.getStart().y(), layout.fontHeightPx());
-        double end_x = this.origin_x + pX(arc.getEnd().x(), layout.fontWidthPx());
-        double end_y = this.origin_y + pX(arc.getEnd().y(), layout.fontHeightPx());
+    public Void visitSweep(Primitive.Sweep sweep) {
+        double start_x = this.origin_x + pX(sweep.getStart().x(), layout.fontWidthPx());
+        double start_y = this.origin_y + pX(sweep.getStart().y(), layout.fontHeightPx());
+        double end_x = this.origin_x + pX(sweep.getEnd().x(), layout.fontWidthPx());
+        double end_y = this.origin_y + pX(sweep.getEnd().y(), layout.fontHeightPx());
         double dx = end_x - start_x;
         double dy = end_y - start_y;
-        double base_x = start_x + (dx * arc.getPushAt());
-        double base_y = start_y + (dy * arc.getPushAt());
+        double base_x = start_x + (dx * sweep.getPushAt());
+        double base_y = start_y + (dy * sweep.getPushAt());
 
         double length = Math.hypot(dx, dy);
-        double pushDistance = length * arc.getPushStrength();
+        double pushDistance = length * sweep.getPushStrength();
         double perp_x = -dy / length;  // perpendicular
         double perp_y = dx / length;   // perpendicular
         // pushTo should be entered as a sort of "how much" to push - scales with line length

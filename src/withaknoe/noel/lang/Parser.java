@@ -134,7 +134,7 @@ class Parser {
     private Stmt primitiveDeclaration() {
         List<Expr> properties = new ArrayList<>();
         Token primitiveKeyword = previous();
-        String name = consume(IDENTIFIER, "Expect primitive variable name.").lexeme;
+        Token name = consume(IDENTIFIER, "Expect primitive variable name.");
         consume(EQUAL, "Expect '=' after primitive name.");
         consume(LBRACKET, "Expect '[' after primitive name.");
 
@@ -329,6 +329,9 @@ class Parser {
         while (true) {
             if (match(LPAREN)) {
                 expr = finishCall(expr);
+            } else if (match(DOT)) {
+                Token name = consume(IDENTIFIER, "Expect property name after '.'.");
+                //expr = new Expr.Get(expr, name);
             } else {
                 break;
             }
@@ -390,7 +393,7 @@ class Parser {
         return peek().type == EOF; // ~ last token
     }
 
-    private List<Expr> getProperties() {
+    private List<Expr> getProperties(Expr expr) {
         List<Expr> properties = new ArrayList<>();
 
         do {
