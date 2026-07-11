@@ -1,6 +1,6 @@
 # NoElSuite
 
-**NoElSuite** is a collection of projects centered around **NoEl** — a custom, domain-specific programming language designed specifically for **procedural handwriting, glyph construction, and typographic rendering**.
+**NoElSuite** is a collection of projects centered around **NoEl** - a custom, domain-specific programming language designed specifically for **procedural handwriting, glyph construction, and typographic rendering**.
 
 NoEl is not a general-purpose language.  
 It is a *drawing language with intent*, where every construct exists to describe **how a letter is built**, not merely how it looks.
@@ -36,7 +36,7 @@ This repository may contain (or evolve to contain) multiple related modules:
 - **ci_NoEl** – a learning / sandbox fork following *[Crafting Interpreters](https://craftinginterpreters.com/)* patterns
 - Supporting tools, experiments, and documentation
 
-Not all components are finalized or fully decoupled yet — this is an *actively evolving language project*.
+Not all components are finalized or fully decoupled yet - this is an *actively evolving language project*.
 
 ---
 
@@ -172,9 +172,9 @@ Expect:
 
 Documentation
 
-```LANGUAGE_SPEC.md``` — formal language definition  
-```DESIGN.md``` — design rationale and intent  
-```CONTRIBUTING.md``` — contribution philosophy and guidelines
+```LANGUAGE_SPEC.md``` - formal language definition  
+```DESIGN.md``` - design rationale and intent  
+```CONTRIBUTING.md``` - contribution philosophy and guidelines
 
 ## Inspiration
 Crafting Interpreters - Robert Nystrom  
